@@ -2,6 +2,7 @@
 
 const express = require('express');
 const User = require('./model');
+
 const router = express.Router();
 
 // Get all users
@@ -32,7 +33,33 @@ router.post('/', async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
-    res.send(user);
+    res.json(user);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+// Update a user
+router.patch('/:id', async (req, res) => {
+  try {
+    const result = await User.findByIdAndUpdate(
+      req.params.id,
+      req.request.body,
+      {
+        runValidators: true,
+      },
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+// Delete a user
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await User.findByIdAndDelete(req.params.id);
+    res.json(result);
   } catch (error) {
     res.status(400).send(error.message);
   }
