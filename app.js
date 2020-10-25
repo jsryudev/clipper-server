@@ -5,8 +5,7 @@ const express = require('express');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 
-// routers
-const users = require('./routes/users/routes');
+const api = require('./routes/index');
 
 mongoose.connect(process.env.CLIPPER_MONGO, {
   user: process.env.CLIPPER_MONGO_USER,
@@ -32,6 +31,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/users', users);
+app.use('/api', api);
 
 module.exports = app;
