@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 const users = require('./routes/users/routes');
 
 mongoose.connect(process.env.CLIPPER_MONGO, {
+  user: process.env.CLIPPER_MONGO_USER,
+  pass: process.env.CLIPPER_MONGO_PASSWORD,
   useFindAndModify: false,
   useNewUrlParser: true,
   useUnifiedTopology: true,
