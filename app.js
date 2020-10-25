@@ -6,7 +6,7 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 
 // routers
-const users = require('./routes/users');
+const users = require('./routes/users/routes');
 
 mongoose.connect(process.env.CLIPPER_MONGO, {
   useFindAndModify: false,
@@ -21,6 +21,7 @@ const db = mongoose.connection;
 db.on('error', err => {
   console.error(err);
 });
+
 db.once('connected', () => {
   console.log('Mongo connected!');
 });
