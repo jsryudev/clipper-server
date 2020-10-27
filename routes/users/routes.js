@@ -1,7 +1,10 @@
 'use strict';
 
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 const User = require('./model');
+const auth = require('../../middleware/auth');
 
 const router = express.Router();
 
@@ -18,10 +21,14 @@ router.get('/', async (req, res) => {
 // Get a user
 router.get('/:id', async (req, res) => {
   try {
-    const result = await User.findById(req.params.id);
-    if (!result) {
+    const user = await User.findOne({ identifier: req.params.id });
+    if (!user) {
       res.sendStatus(404);
     }
+
+    const result = _.omit(user.toObject(), ['identifier', '__v']);
+    result.accessToken = jwt.sign(result, process.env.CLIPPER_JWT_SECRET);
+
     res.json(result);
   } catch (error) {
     res.status(400).send(error.message);
