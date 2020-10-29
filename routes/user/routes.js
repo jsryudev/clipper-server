@@ -10,6 +10,7 @@ const { verify } = require('./verify');
 
 const router = express.Router();
 
+// with Access Token
 router.get('/', auth, async (req, res) => {
   try {
     const user = await User.findById(req.decoded._id);
@@ -23,10 +24,10 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// Sign up
 router.post('/', async (req, res) => {
   try {
     const identifier = await verify(req.body.token);
-
     req.body.identifier = identifier;
 
     const user = new User(req.body);
@@ -41,6 +42,7 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Sign in
 router.post('/google-login', async (req, res) => {
   try {
     const identifier = await verify(req.body.token);
