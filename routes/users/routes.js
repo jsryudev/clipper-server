@@ -4,7 +4,6 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const User = require('./model');
-const auth = require('../../middleware/auth');
 
 const router = express.Router();
 
@@ -19,9 +18,9 @@ router.get('/', async (req, res) => {
 });
 
 // Get a user
-router.get('/:id', async (req, res) => {
+router.get('/:identifier', async (req, res) => {
   try {
-    const user = await User.findOne({ identifier: req.params.id });
+    const user = await User.findOne({ identifier: req.params.identifier });
     if (!user) {
       res.sendStatus(404);
     }
@@ -40,7 +39,11 @@ router.post('/', async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
-    res.json(user);
+
+    const result = _.omit(user.toObject(), ['identifier', '__v']);
+    result.accessToken = jwt.sign(result, process.env.CLIPPER_JWT_SECRET);
+
+    res.json(result);
   } catch (error) {
     res.status(400).send(error.message);
   }

@@ -2,12 +2,10 @@
 
 const jwt = require('jsonwebtoken');
 
-exports.verifyToken = (req, res, next) => {
+module.exports = (req, res, next) => {
   try {
-    req.decoded = jwt.verify(
-      req.headers.authorization,
-      process.env.CLIPPER_JWT_SECRET,
-    );
+    const token = req.headers.authorization.split('Bearer ')[1];
+    req.decoded = jwt.verify(token, process.env.CLIPPER_JWT_SECRET);
     return next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
