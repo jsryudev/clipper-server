@@ -4,9 +4,13 @@ const express = require('express');
 
 const router = express.Router();
 
+const auth = require('../middleware/auth');
+
+const user = require('./user/routes');
 const users = require('./users/routes');
 const clips = require('./clips/routes');
 
+router.use('/user', auth, user);
 router.use('/users', users);
 router.use('/clips', clips);
 
