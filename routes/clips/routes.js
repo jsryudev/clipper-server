@@ -15,6 +15,34 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Nearby clips
+router.get('/nearby', async (req, res) => {
+  try {
+    const latitude = parseFloat(req.query.lat);
+    const longitude = parseFloat(req.query.lng);
+
+    const result = await Clip.find({
+      $and: [
+        {
+          'coordinate.longitude': {
+            $gte: (longitude - 1).toFixed(7),
+            $lte: (longitude + 1).toFixed(7),
+          },
+        },
+        {
+          'coordinate.latitude': {
+            $gte: (latitude - 1).toFixed(7),
+            $lte: (latitude + 1).toFixed(7),
+          },
+        },
+      ],
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
 // Get a clip
 router.get('/:id', async (req, res) => {
   try {
@@ -22,23 +50,6 @@ router.get('/:id', async (req, res) => {
     if (!result) {
       res.sendStatus(404);
     }
-    res.json(result);
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
-
-// Nearby clips
-router.post('/nearby', async (req, res) => {
-  try {
-    const result = await Clip.find({
-      $and: [
-        { 'coordinate.longitude': { $gt: req.body.lng - req.body.offset } },
-        { 'coordinate.longitude': { $lt: req.body.lng + req.body.offset } },
-        { 'coordinate.latitude': { $gt: req.body.lat - req.body.offset } },
-        { 'coordinate.latitude': { $lt: req.body.lat + req.body.offset } },
-      ],
-    });
     res.json(result);
   } catch (error) {
     res.status(400).send(error.message);

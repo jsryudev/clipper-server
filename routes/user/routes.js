@@ -28,9 +28,10 @@ router.get('/', auth, async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const identifier = await verify(req.body.token);
-    req.body.identifier = identifier;
+    const body = req.body;
+    body.identifier = identifier;
 
-    const user = new User(req.body);
+    const user = new User(_.omit(body, ['token']));
     await user.save();
 
     const result = _.omit(user.toObject(), ['identifier', '__v']);
@@ -52,10 +53,9 @@ router.post('/google-login', async (req, res) => {
       res.sendStatus(404);
     }
 
-    const result = _.omit(user.toObject(), ['identifier', '__v']);
-    result.accessToken = jwt.sign(result, process.env.CLIPPER_JWT_SECRET);
-
-    res.json(result);
+    res.json({
+      accessToken: jwt.sign(user.toObject(), process.env.CLIPPER_JWT_SECRET),
+    });
   } catch (error) {
     res.status(400).send(error.message);
   }
