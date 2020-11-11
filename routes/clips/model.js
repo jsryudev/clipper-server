@@ -19,7 +19,7 @@ const clipSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  note: {
+  content: {
     type: String,
     default: null,
   },
