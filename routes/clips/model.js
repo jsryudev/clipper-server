@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 
 const clipSchema = new mongoose.Schema({
-  coordinate: {
-    longitude: {
-      type: Number,
-      require: true,
-    },
-    latitude: {
-      type: Number,
-      require: true,
-    },
+  parentId: {
+    type: mongoose.ObjectId,
+    ref: 'Marker',
+    required: true,
+  },
+  author: {
+    type: mongoose.ObjectId,
+    ref: 'User',
+    required: true,
   },
   location: {
     type: String,
@@ -23,23 +23,6 @@ const clipSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  author: {
-    type: mongoose.ObjectId,
-    ref: 'User',
-    require: true,
-  },
-  likedUsers: [
-    {
-      type: mongoose.ObjectId,
-      ref: 'User',
-    },
-  ],
-  dislikedUsers: [
-    {
-      type: mongoose.ObjectId,
-      ref: 'User',
-    },
-  ],
 });
 
 const Clip = mongoose.model('Clip', clipSchema);
