@@ -1,6 +1,8 @@
 'use strict';
 
 const express = require('express');
+const _ = require('lodash');
+const Marker = require('../markers/model');
 const Clip = require('./model');
 
 const router = express.Router();
@@ -56,12 +58,37 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create a user
+// Create a clip
 router.post('/', async (req, res) => {
   try {
-    const clip = new Clip(req.body);
-    await clip.save();
-    res.json(clip);
+    const latitude = req.body.coordinate.latitude;
+    const longitude = req.body.coordinate.longitude;
+
+    const body = _.omit(req.body, ['coordinate']);
+
+    const found = await Marker.findOne({
+      'coordinate.latitude': latitude,
+      'coordinate.longitude': longitude,
+    });
+
+    if (found) {
+      body.parentId = found.id;
+      const clip = new Clip(body);
+      const result = await clip.save();
+      res.json(result);
+    } else {
+      const marker = new Marker({
+        'coordinate.latitude': latitude,
+        'coordinate.longitude': longitude,
+      });
+
+      const saved = await marker.save();
+      body.parentId = saved.id;
+
+      const clip = new Clip(body);
+      const result = await clip.save();
+      res.json(result);
+    }
   } catch (error) {
     res.status(400).send(error.message);
   }
