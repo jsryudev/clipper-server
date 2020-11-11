@@ -35,8 +35,13 @@ router.get('/nearby', async (req, res) => {
 });
 
 router.get('/:id/clips', async (req, res) => {
+  const options = {
+    page: req.query.page,
+    limit: req.query.limit,
+  };
+
   try {
-    const founds = await Clip.find({ parentId: req.params.id });
+    const founds = await Clip.paginate({ parentId: req.params.id }, options);
     res.json(founds);
   } catch (error) {
     res.status(400).send(error.message);

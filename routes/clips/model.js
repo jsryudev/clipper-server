@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const clipSchema = new mongoose.Schema({
   parentId: {
@@ -25,6 +26,7 @@ const clipSchema = new mongoose.Schema({
   },
 });
 
+clipSchema.plugin(mongoosePaginate);
 const Clip = mongoose.model('Clip', clipSchema);
 
 module.exports = Clip;
