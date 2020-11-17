@@ -56,6 +56,7 @@ router.post('/', async (req, res) => {
 
     const body = _.omit(req.body, ['latitude', 'longitude']);
     const clip = new Clip(body);
+    await clip.save();
 
     marker.clips.push(clip);
     await marker.save();
