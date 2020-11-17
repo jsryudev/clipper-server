@@ -20,6 +20,9 @@ router.get('/', async (req, res) => {
 router.get('/near', async (req, res) => {
   try {
     const founds = await Marker.find()
+      .where('clips')
+      .slice(5)
+      .populate('clips')
       .where('location')
       .near({
         center: [req.query.lng, req.query.lat],
