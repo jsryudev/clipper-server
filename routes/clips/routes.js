@@ -17,34 +17,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Nearby clips
-router.get('/nearby', async (req, res) => {
-  try {
-    const latitude = parseFloat(req.query.lat);
-    const longitude = parseFloat(req.query.lng);
-
-    const result = await Clip.find({
-      $and: [
-        {
-          'coordinate.longitude': {
-            $gte: (longitude - 1).toFixed(7),
-            $lte: (longitude + 1).toFixed(7),
-          },
-        },
-        {
-          'coordinate.latitude': {
-            $gte: (latitude - 1).toFixed(7),
-            $lte: (latitude + 1).toFixed(7),
-          },
-        },
-      ],
-    });
-    res.json(result);
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
-
 // Get a clip
 router.get('/:id', async (req, res) => {
   try {
@@ -58,43 +30,43 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create a clip
+// Create a clip and marker
 router.post('/', async (req, res) => {
   try {
-    const latitude = req.body.coordinate.latitude;
-    const longitude = req.body.coordinate.longitude;
+    const found = await Marker.findOne()
+      .where('location')
+      .near({
+        center: [req.body.longitude, req.body.latitude],
+        spherical: true,
+      })
+      .maxDistance(0);
 
-    const body = _.omit(req.body, ['coordinate']);
-
-    const found = await Marker.findOne({
-      'coordinate.latitude': latitude,
-      'coordinate.longitude': longitude,
-    });
-
+    let marker;
     if (found) {
-      body.parentId = found.id;
-      const clip = new Clip(body);
-      const result = await clip.save();
-      res.json(result);
+      marker = found;
     } else {
-      const marker = new Marker({
-        'coordinate.latitude': latitude,
-        'coordinate.longitude': longitude,
+      const created = new Marker({
+        location: {
+          coordinates: [req.body.longitude, req.body.latitude],
+        },
       });
 
-      const saved = await marker.save();
-      body.parentId = saved.id;
-
-      const clip = new Clip(body);
-      const result = await clip.save();
-      res.json(result);
+      marker = created;
     }
+
+    const body = _.omit(req.body, ['latitude', 'longitude']);
+    const clip = new Clip(body);
+
+    marker.clips.push(clip);
+    await marker.save();
+
+    res.json(clip);
   } catch (error) {
     res.status(400).send(error.message);
   }
 });
 
-// Update a user
+// Update a clip
 router.patch('/:id', async (req, res) => {
   try {
     const result = await Clip.findByIdAndUpdate(
