@@ -24,7 +24,7 @@ db.on('error', err => {
 });
 
 db.once('connected', () => {
-  console.log('Mongo connected!');
+  console.log('Database connected.');
 });
 
 app.use(logger('dev'));
