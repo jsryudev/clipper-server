@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const _ = require('lodash');
 const Marker = require('./model');
 const Clip = require('../clips/model');
 
@@ -65,7 +66,11 @@ router.get('/:id/clips', async (req, res) => {
 router.post('/:id/clips', async (req, res) => {
   try {
     const marker = await Marker.findById(req.params.id);
-    marker.clips.push(req.body);
+
+    const clip = new Clip(req.body);
+    await clip.save;
+
+    marker.clips.push(clip.id);
     await marker.save();
 
     res.json(req.body);
