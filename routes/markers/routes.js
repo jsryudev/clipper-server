@@ -49,14 +49,9 @@ router.get('/:id', async (req, res) => {
 
 // Get all marker's clips
 router.get('/:id/clips', async (req, res) => {
-  const options = {
-    page: req.query.page,
-    limit: req.query.limit,
-  };
-
   try {
-    const founds = await Clip.paginate({ parentId: req.params.id }, options);
-    res.json(founds);
+    const marker = await Marker.findById(req.params.id).populate('clips');
+    res.json(marker.clips);
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -67,13 +62,16 @@ router.post('/:id/clips', async (req, res) => {
   try {
     const marker = await Marker.findById(req.params.id);
 
-    const clip = new Clip(req.body);
-    await clip.save;
+    const body = req.body;
+    body.author = '5f958e91a37440b4fa5f679b';
 
-    marker.clips.push(clip.id);
+    const clip = new Clip(body);
+    marker.clips.push(clip);
+
     await marker.save();
+    await clip.save();
 
-    res.json(req.body);
+    res.json(clip);
   } catch (error) {
     res.status(400).send(error.message);
   }
