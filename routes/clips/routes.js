@@ -5,10 +5,12 @@ const _ = require('lodash');
 const Marker = require('../markers/model');
 const Clip = require('./model');
 
+const auth = require('../../middleware/auth');
+
 const router = express.Router();
 
 // Get all clips
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     const result = await Clip.find({});
     res.json(result);
@@ -18,7 +20,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get a clip
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     const result = await Clip.findById(req.params.id);
     if (!result) {
@@ -31,7 +33,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create a clip and marker
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     const found = await Marker.findOne()
       .where('location')
@@ -56,6 +58,8 @@ router.post('/', async (req, res) => {
 
     const body = _.omit(req.body, ['latitude', 'longitude']);
     const clip = new Clip(body);
+    clip.author = req.decoded._id;
+
     marker.clips.push(clip);
 
     await marker.save();
@@ -68,7 +72,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update a clip
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', auth, async (req, res) => {
   try {
     const result = await Clip.findByIdAndUpdate(
       req.params.id,
@@ -84,7 +88,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // Delete a user
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     const result = await Clip.findByIdAndDelete(req.params.id);
     res.json(result);
